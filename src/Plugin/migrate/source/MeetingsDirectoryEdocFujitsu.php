@@ -190,8 +190,6 @@ class MeetingsDirectoryEdocFujitsu extends MeetingsDirectory {
         continue;
       }
 
-      print_r($title);
-      print_r(PHP_EOL);
       $publishingType = $bullet_point['AccessIsPublic'];
       $access = filter_var($publishingType, FILTER_VALIDATE_BOOLEAN);
 
@@ -261,7 +259,9 @@ class MeetingsDirectoryEdocFujitsu extends MeetingsDirectory {
       $title = $enclosure['Title'];
       $access = TRUE;
       $uri = $enclosure['Link'];
+
       $uri = $this->invertPathsBackslashes($uri);
+      $uri = $this->capitalizeExtension($uri);
 
       $canonical_enclosures[] = [
         'id' => $id,
@@ -269,8 +269,6 @@ class MeetingsDirectoryEdocFujitsu extends MeetingsDirectory {
         'uri' => $uri,
         'access' => $access,
       ];
-
-      print_r($canonical_enclosures);
     }
 
     return $canonical_enclosures;
@@ -314,6 +312,25 @@ class MeetingsDirectoryEdocFujitsu extends MeetingsDirectory {
    */
   private function invertPathsBackslashes($path) {
     return str_replace('\\', '/', $path);
+  }
+
+  /**
+   * Capitalising the extension.
+   *
+   * @param $path
+   *   Path string
+   *
+   * @return string|string[]
+   *   URI with file extension being capitalized.
+   */
+  private function capitalizeExtension($path) {
+    $path_parts = pathinfo($path);
+
+    $extension = $path_parts['extension'];
+    $capExtension = strtoupper($extension);
+
+    // Avoiding wrong replacements by adding dot.
+    return str_replace(".$extension", ".$capExtension", $path);
   }
 
   /**

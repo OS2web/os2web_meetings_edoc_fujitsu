@@ -24,7 +24,7 @@ Settings are available under ```admin/config/system/os2web-meetings```
 
 Module is available to download via composer.
 ```
-composer require os2web/os2web_meetings_edoc
+composer require os2web/os2web_meetings_edoc_fujitsu
 drush en os2web_meetings_edoc
 ```
 
