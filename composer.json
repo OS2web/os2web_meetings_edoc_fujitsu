@@ -1,0 +1,12 @@
+{
+    "name": "os2web/os2web_meetings_edoc_fujitsu",
+    "type": "drupal-module",
+    "description": "Import meetings from EDOC Fujitsu ESDH system",
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "license": "EUPL-1.2",
+    "require": {
+        "drupal/migrate_plus": "^5.1",
+        "drupal/migrate_tools": "^5.0"
+    }
+}

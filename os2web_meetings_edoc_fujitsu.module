@@ -1,0 +1,27 @@
+<?php
+
+/**
+ * @file
+ * Primary module hooks for os2web_meetings module.
+ */
+
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\os2web_meetings\Form\SettingsForm;
+
+/**
+ * Implements hook_form_alter().
+ */
+function os2web_meetings_edoc_fujitsu_form_os2web_meetings_settings_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $form['edoc_fujitsu_meetings_import_details'] = [
+    '#type' => 'details',
+    '#title' => t('EDOC Fujitsu Import settings'),
+  ];
+
+  $form['edoc_fujitsu_meetings_import_details']['edoc_fujitsu_meetings_manifest_path'] = [
+    '#type' => 'textfield',
+    '#title' => t('EDOC Fujitsu Meetings manifests path'),
+    '#description' => t('Example: public://edoc_fujitsu'),
+    '#default_value' => \Drupal::config(SettingsForm::$configName)
+      ->get('edoc_fujitsu_meetings_manifest_path'),
+  ];
+}
