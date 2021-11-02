@@ -232,10 +232,10 @@ class MeetingsDirectoryEdocFujitsu extends MeetingsDirectory {
     $canonical_attachments = [];
 
     foreach ($source_attachments as $source_attachment) {
-      // Using title as ID, as we don't have a real one.
-      $id = $source_attachment['Title'];
-
       if (!empty($source_attachment['Content'])) {
+        // Using title as ID, as we don't have a real one.
+        $id = $source_attachment['Title'];
+
         $canonical_attachments[] = [
           'id' => $id,
           'title' => $source_attachment['Title'],
