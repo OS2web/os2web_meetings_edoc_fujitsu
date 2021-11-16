@@ -181,8 +181,7 @@ class MeetingsDirectoryEdocFujitsu extends MeetingsDirectory {
     $source_bullet_points = $source['bullet_points'];
 
     foreach ($source_bullet_points as $bullet_point) {
-      $id = $bullet_point['Identifier'];
-      $bpNumber = $bullet_point['HandlingItem']['SerialNo'];
+      // Getting title.
       $title = $bullet_point['HandlingItem']['Title'];
 
       // Skipping bullet points with no titles.
@@ -190,8 +189,13 @@ class MeetingsDirectoryEdocFujitsu extends MeetingsDirectory {
         continue;
       }
 
+      // Getting fields.
+      $id = $bullet_point['Identifier'];
+      $bpNumber = $bullet_point['HandlingItem']['SerialNo'];
       $publishingType = $bullet_point['AccessIsPublic'];
       $access = filter_var($publishingType, FILTER_VALIDATE_BOOLEAN);
+      $caseno = $bullet_point['HandlingItem']['CaseNumber'];
+      $comname = $bullet_point['RuleOfSpeaking'];
 
       // Getting attachments (text).
       $source_attachments = $bullet_point['HandlingItem']['CasePresentations'];
@@ -212,6 +216,8 @@ class MeetingsDirectoryEdocFujitsu extends MeetingsDirectory {
         'number' => $bpNumber,
         'title' => $title,
         'access' => $access,
+        'case_nr' => $caseno,
+        'com_name' => $comname,
         'attachments' => $canonical_attachments,
         'enclosures' =>  $canonical_enclosures,
       ];
