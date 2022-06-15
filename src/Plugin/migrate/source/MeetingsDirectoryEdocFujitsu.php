@@ -36,6 +36,7 @@ class MeetingsDirectoryEdocFujitsu extends MeetingsDirectory {
   public function collectAgendaUrls($configuration) {
     $manifestPaths = [];
     $agendaPaths = [];
+    $agendas = [];
 
     // Traverse through the directory (not recursively)
     $path = $this->getMeetingsManifestPath();
@@ -59,15 +60,30 @@ class MeetingsDirectoryEdocFujitsu extends MeetingsDirectory {
       // Returned as array with one element.
       $isPublish = $manifestXml->xpath('/Root/edoc:Notification/edoc:Publish');
       $isPublish = (string) array_shift($isPublish);
+      $agendaId =  $manifestXml->xpath('/Root/edoc:Notification/edoc:AgendaIdentifier');
+      $agendaId = (string) array_shift($agendaId);
+      $agendaTimestamp = $manifestXml->xpath('/Root/edoc:Notification/edoc:Timestamp');
+      $agendaTimestamp = strtotime( (string) array_shift($agendaTimestamp));
 
       if (filter_var($isPublish, FILTER_VALIDATE_BOOLEAN)) {
         // Returned as array with one element.
         $agendaPath = $manifestXml->xpath('/Root/edoc:Notification/edoc:PathToXml');
         $agendaPath = (string) array_shift($agendaPath);
         $agendaPath = $this->invertPathsBackslashes($agendaPath);
-
-        $agendaPaths[] = $this->getMeetingsManifestPath() . $agendaPath;
+        if (isset($agendas[$agendaId])) {
+          if ($agendaTimestamp < $agendas[$agendaId]['lastModified']) {
+            continue;
+          }
+        }
+        $agendas[$agendaId] = [
+          'uri' =>  $this->getMeetingsManifestPath() . $agendaPath,
+          'lastModified' => $agendaTimestamp
+          ];
+          $this->getMeetingsManifestPath() . $agendaPath;
       }
+    }
+    foreach($agendas as $agenda) {
+      $agendaPaths[] = $agenda['uri'];
     }
 
     return $agendaPaths;
