@@ -59,11 +59,11 @@ class MeetingsDirectoryEdocFujitsu extends MeetingsDirectory {
 
       // Returned as array with one element.
       $isPublish = $manifestXml->xpath('/Root/edoc:Notification/edoc:Publish');
-      $isPublish = (string) array_shift($isPublish);
+      $isPublish = (string)array_shift($isPublish);
       $agendaId =  $manifestXml->xpath('/Root/edoc:Notification/edoc:AgendaIdentifier');
-      $agendaId = (string) array_shift($agendaId);
+      $agendaId = (string)array_shift($agendaId);
       $agendaTimestamp = $manifestXml->xpath('/Root/edoc:Notification/edoc:Timestamp');
-      $agendaTimestamp = strtotime( (string) array_shift($agendaTimestamp));
+      $agendaTimestamp = strtotime((string)array_shift($agendaTimestamp));
 
       if (filter_var($isPublish, FILTER_VALIDATE_BOOLEAN)) {
         // Returned as array with one element.
@@ -79,7 +79,6 @@ class MeetingsDirectoryEdocFujitsu extends MeetingsDirectory {
           'uri' =>  $this->getMeetingsManifestPath() . $agendaPath,
           'lastModified' => $agendaTimestamp
           ];
-          $this->getMeetingsManifestPath() . $agendaPath;
       }
     }
     foreach($agendas as $agenda) {
@@ -224,9 +223,13 @@ class MeetingsDirectoryEdocFujitsu extends MeetingsDirectory {
       $source_enclosures = $bullet_point['HandlingItem']['Attachments'];
       $canonical_enclosures = [];
       if (is_array($source_enclosures) && array_key_exists('Attachment', $source_enclosures)) {
-      if (count(array_filter(array_keys($source_enclosures['Attachment']), 'is_string')) == count($source_enclosures['Attachment'])) {
-          $source_enclosures['Attachment']=[$source_enclosures['Attachment']];
-      }
+        /*
+         * If $source_enclosures['Attachment'] is assosiative array,
+         * we need to add it to array for import work correctly.
+         */
+        if (count(array_filter(array_keys($source_enclosures['Attachment']), 'is_string')) == count($source_enclosures['Attachment'])) {
+          $source_enclosures['Attachment'] = [$source_enclosures['Attachment']];
+        }
         $canonical_enclosures = $this->convertEnclosuresToCanonical($source_enclosures);
       }
 
