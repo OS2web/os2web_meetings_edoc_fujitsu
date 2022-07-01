@@ -224,6 +224,9 @@ class MeetingsDirectoryEdocFujitsu extends MeetingsDirectory {
       $source_enclosures = $bullet_point['HandlingItem']['Attachments'];
       $canonical_enclosures = [];
       if (is_array($source_enclosures) && array_key_exists('Attachment', $source_enclosures)) {
+      if (count(array_filter(array_keys($source_enclosures['Attachment']), 'is_string')) == count($source_enclosures['Attachment'])) {
+          $source_enclosures['Attachment']=[$source_enclosures['Attachment']];
+      }
         $canonical_enclosures = $this->convertEnclosuresToCanonical($source_enclosures);
       }
 
@@ -276,7 +279,7 @@ class MeetingsDirectoryEdocFujitsu extends MeetingsDirectory {
   public function convertEnclosuresToCanonical(array $source_enclosures) {
     $canonical_enclosures = [];
 
-    foreach ($source_enclosures as $enclosure) {
+    foreach ($source_enclosures['Attachment'] as $enclosure) {
       $id = $enclosure['Identifier'];
       $title = $enclosure['Title'];
       $access = TRUE;
