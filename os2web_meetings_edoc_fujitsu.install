@@ -4,3 +4,16 @@
  * @file
  * Install, uninstall and update hooks for OS2Web Meetings EDOC Fujitsu module.
  */
+
+use Symfony\Component\Yaml\Yaml;
+
+/**
+ * Updating migration - adjusting meeting dates timezone.
+ */
+function os2web_meetings_edoc_fujitsu_update_8001() {
+  $config_name = 'migrate_plus.migration.os2web_meetings_edoc_fujitsu_import';
+  $path = \Drupal::service('extension.list.module')->getPath('os2web_meetings_edoc_fujitsu');
+  /** @var \Drupal\Core\Config\StorageInterface $active_storage */
+  $active_storage = \Drupal::service('config.storage');
+  $active_storage->write($config_name, Yaml::parse(file_get_contents($path . '/config/install/' . $config_name . '.yml')));
+}

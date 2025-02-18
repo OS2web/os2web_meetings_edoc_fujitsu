@@ -62,12 +62,16 @@ process:
   field_os2web_m_start_date:
     plugin: format_date
     from_format: 'U'
+    from_timezone: 'UTC'
     to_format: 'Y-m-d\TH:i:s'
+    to_timezone: 'UTC'
     source: meeting_start_date
   field_os2web_m_end_date:
     plugin: format_date
     from_format: 'U'
+    from_timezone: 'UTC'
     to_format: 'Y-m-d\TH:i:s'
+    to_timezone: 'UTC'
     source: meeting_end_date
   field_os2web_m_doc: agenda_document
   field_os2web_m_committee: committee_target
