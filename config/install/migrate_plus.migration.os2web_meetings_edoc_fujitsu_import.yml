@@ -45,6 +45,9 @@ source:
     - name: location_name
       label: Location name
       selector: "edoc:Committee/edoc:Meeting/edoc:MeetingLocation"
+    - name: participants
+      label: Participants
+      selector: "edoc:Committee/edoc:Meeting/edoc:MeetingParticipants/edoc:MeetingParticipant"
     - name: bullet_points
       label: Bullet points
       selector: "edoc:Committee/edoc:Meeting/edoc:Agenda/edoc:AgendaElements/edoc:AgendaElement"
@@ -76,6 +79,8 @@ process:
   field_os2web_m_doc: agenda_document
   field_os2web_m_committee: committee_target
   field_os2web_m_location: location_target
+  field_os2web_m_partic: participants
+  field_os2web_m_partic_cancel: cancel_participants
   field_os2web_m_bps: bullet_points_targets
 destination:
   plugin: entity:node

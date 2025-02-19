@@ -3,6 +3,7 @@
 namespace Drupal\os2web_meetings_edoc_fujitsu\Plugin\migrate\source;
 
 use Drupal\Component\FileSystem\RegexDirectoryIterator;
+use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\migrate\Event\MigrateImportEvent;
 use Drupal\migrate\Plugin\MigrationInterface;
 use Drupal\node\Entity\Node;
@@ -95,10 +96,15 @@ class MeetingsDirectoryEdocFujitsu extends MeetingsDirectory {
     $source = $row->getSource();
 
     // Altering the title.
-    $dateParts = explode(' ', $source['meeting_start_date']);
+    $start_date = $source['meeting_start_date'];
+    $start_date_ts = $this->convertDateToTimestamp($start_date);
 
-    // New title will be [Meeting title - DD/mm/YYYY]
-    $title = $source['title'] . ' - ' . $dateParts[0];
+    /** @var DateFormatterInterface $dateFormatter */
+    $dateFormatter = \Drupal::service('date.formatter');
+    $formatted_date = $dateFormatter->format($start_date_ts, 'os2core_date_medium', '', NULL, 'da');
+
+    // New title will be [Meeting title den [date in os2core_date_medium format]
+    $title = $source['title'] . ' den ' . $formatted_date;
 
     $row->setSourceProperty('title', $title);
 
@@ -264,10 +270,18 @@ class MeetingsDirectoryEdocFujitsu extends MeetingsDirectory {
         // Using title as ID, as we don't have a real one.
         $id = $source_attachment['Title'];
 
+        // Improve body, replace all backslashes with forward slashes in src.
+        $body = $source_attachment['Content'];
+        preg_match_all('/src="([^"]+)"/', $body, $matches);
+        foreach ($matches[1] as $originalSrc) {
+          $newSrc = str_replace('\\', '/', $originalSrc);
+          $body = str_replace($originalSrc, $newSrc, $body);
+        }
+
         $canonical_attachments[] = [
           'id' => $id,
           'title' => $source_attachment['Title'],
-          'body' => $source_attachment['Content'],
+          'body' => $body,
           'access' => TRUE,
         ];
       }
@@ -318,11 +332,25 @@ class MeetingsDirectoryEdocFujitsu extends MeetingsDirectory {
 
     return $dateTime->getTimestamp();
   }
+
   /**
    * {@inheritdoc}
    */
   public function convertParticipantToCanonical(array $source) {
-    return '';
+    $participants =  $source['participants'];
+
+    $canonical_participants = ['participants' => [], 'participants_canceled' => []];
+
+    foreach ($participants as $participant) {
+      if (filter_var($participant['Participate'], FILTER_VALIDATE_BOOLEAN)) {
+        $canonical_participants['participants'][] = (string) $participant['Name'];
+      }
+      else {
+        $canonical_participants['participants_canceled'][] = (string) $participant['Name'];
+      }
+    }
+
+    return $canonical_participants;
   }
 
   /**
