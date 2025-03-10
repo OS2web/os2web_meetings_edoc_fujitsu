@@ -106,6 +106,10 @@ class MeetingsDirectoryEdocFujitsu extends MeetingsDirectory {
     // New title will be [Meeting title den [date in os2core_date_medium format]
     $title = $source['title'] . ' den ' . $formatted_date;
 
+    if ($source['agenda_subtype'] == 'Tillægsdagsorden') {
+      $title .= ' - ' . $source['agenda_subtype'];
+    }
+
     $row->setSourceProperty('title', $title);
 
     return parent::prepareRow($row);

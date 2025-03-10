@@ -24,6 +24,9 @@ source:
     - name: agenda_access
       label: Agenda accesss
       selector: "edoc:OutputFilterIsPublic"
+    - name: agenda_subtype
+      label: Agenda subtype
+      selector: "edoc:Committee/edoc:Meeting/edoc:Agenda/edoc:Type"
     - name: meeting_id
       label: Meeting ID
       selector: "edoc:Committee/edoc:Meeting/edoc:MeetingIdentifier"
