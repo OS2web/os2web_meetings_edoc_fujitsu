@@ -3,7 +3,9 @@
 namespace Drupal\os2web_meetings_edoc_fujitsu\Plugin\migrate\source;
 
 use Drupal\Component\FileSystem\RegexDirectoryIterator;
+use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Datetime\DateFormatterInterface;
+use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\migrate\Event\MigrateImportEvent;
 use Drupal\migrate\Plugin\MigrationInterface;
 use Drupal\node\Entity\Node;
@@ -221,6 +223,10 @@ class MeetingsDirectoryEdocFujitsu extends MeetingsDirectory {
       $access = filter_var($publishingType, FILTER_VALIDATE_BOOLEAN);
       $caseno = $bullet_point['HandlingItem']['CaseNumber'];
       $comname = $bullet_point['RuleOfSpeaking'];
+      $handlingPlan = NULL;
+      if (NestedArray::keyExists($bullet_point, ['HandlingItem', 'HandlingPlan', 'Handling'])) {
+        $handlingPlan = $bullet_point['HandlingItem']['HandlingPlan']['Handling'];
+      }
 
       // Getting attachments (text).
       $source_attachments = $bullet_point['HandlingItem']['CasePresentations'];
@@ -233,6 +239,14 @@ class MeetingsDirectoryEdocFujitsu extends MeetingsDirectory {
         // Indexing does not start with 0, if there is exactly one CasePresentation / Attachment.
         else {
           $canonical_attachments = $this->convertAttachmentsToCanonical($source_attachments);
+        }
+      }
+
+      // Generating HandlingPlan.
+      if ($handlingPlan) {
+        $canonical_handling_plan_attachment = $this->convertHandlingPlantoCanonical($handlingPlan);
+        if ($canonical_handling_plan_attachment) {
+          $canonical_attachments[] = $canonical_handling_plan_attachment;
         }
       }
 
@@ -299,6 +313,33 @@ class MeetingsDirectoryEdocFujitsu extends MeetingsDirectory {
     }
 
     return $canonical_attachments;
+  }
+
+  public function convertHandlingPlantoCanonical($handlingPlan) {
+    $canonical_handling_plan = [
+      'id' => NULL,
+      'body' => ''
+    ];
+
+    // If we are dealing with a single element.
+    if (!isset($handlingPlan[0])) {
+      $plan[0] = $handlingPlan;
+      $handlingPlan = $plan;
+    }
+
+    foreach ($handlingPlan as $handling) {
+      // Using ID from the first handling.
+      if (!isset($canonical_handling_plan['id'])) {
+        $canonical_handling_plan['id'] = $handling['Identifier'];
+      }
+      $date = new DrupalDateTime($handling['MeetingDate'], new \DateTimeZone('UTC'));
+      $canonical_handling_plan['body'] .= $handling['CommitteeName'] . ' ' . $date->format('d. F Y \k\l\. H:i') . '<br/>';
+    }
+
+    $canonical_handling_plan['title'] = 'Behandlingsplan';
+    $canonical_handling_plan['access'] = TRUE;
+
+    return $canonical_handling_plan;
   }
 
   /**
