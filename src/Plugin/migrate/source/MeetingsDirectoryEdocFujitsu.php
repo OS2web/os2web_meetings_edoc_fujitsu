@@ -315,10 +315,25 @@ class MeetingsDirectoryEdocFujitsu extends MeetingsDirectory {
     return $canonical_attachments;
   }
 
+  /**
+   * Returns formatted handlingPlan or NULL.
+   *
+   * @param $handlingPlan
+   *   Source array.
+   * @return array
+   *     [
+   *       'id' => 123,
+   *       'title' => 'Attachment title',
+   *       'body' => 'Attachment text', // can be empty
+   *       'access' => TRUE/FALSE, // TRUE is default
+   *     ],
+   */
   public function convertHandlingPlantoCanonical($handlingPlan) {
     $canonical_handling_plan = [
       'id' => NULL,
-      'body' => ''
+      'title' => 'Behandlingsplan',
+      'body' => '',
+      'access' => TRUE,
     ];
 
     // If we are dealing with a single element.
@@ -328,18 +343,23 @@ class MeetingsDirectoryEdocFujitsu extends MeetingsDirectory {
     }
 
     foreach ($handlingPlan as $handling) {
-      // Using ID from the first handling.
-      if (!isset($canonical_handling_plan['id'])) {
-        $canonical_handling_plan['id'] = $handling['Identifier'];
+      // Using date to skip empty ones.
+      if (!empty($handling['MeetingDate'])) {
+        // Using ID from the first handling.
+        if (!isset($canonical_handling_plan['id'])) {
+          $canonical_handling_plan['id'] = $handling['Identifier'];
+        }
+
+        $date = new DrupalDateTime($handling['MeetingDate'], new \DateTimeZone('UTC'));
+        $canonical_handling_plan['body'] .= $handling['CommitteeName'] . ' ' . $date->format('d. F Y \k\l\. H:i') . '<br/>';
       }
-      $date = new DrupalDateTime($handling['MeetingDate'], new \DateTimeZone('UTC'));
-      $canonical_handling_plan['body'] .= $handling['CommitteeName'] . ' ' . $date->format('d. F Y \k\l\. H:i') . '<br/>';
     }
 
-    $canonical_handling_plan['title'] = 'Behandlingsplan';
-    $canonical_handling_plan['access'] = TRUE;
+    if (!empty($canonical_handling_plan['body'])) {
+      return $canonical_handling_plan;
+    }
 
-    return $canonical_handling_plan;
+    return NULL;
   }
 
   /**
