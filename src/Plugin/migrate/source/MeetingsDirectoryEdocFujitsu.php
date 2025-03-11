@@ -226,7 +226,14 @@ class MeetingsDirectoryEdocFujitsu extends MeetingsDirectory {
       $source_attachments = $bullet_point['HandlingItem']['CasePresentations'];
       $canonical_attachments = [];
       if (is_array($source_attachments) && array_key_exists('CasePresentation', $source_attachments)) {
-        $canonical_attachments = $this->convertAttachmentsToCanonical($source_attachments['CasePresentation']);
+        // Indexing start with 0, if there are more than one CasePresentation / Attachments.
+        if (array_key_exists(0, $source_attachments['CasePresentation'])) {
+          $canonical_attachments = $this->convertAttachmentsToCanonical($source_attachments['CasePresentation']);
+        }
+        // Indexing does not start with 0, if there is exactly one CasePresentation / Attachment.
+        else {
+          $canonical_attachments = $this->convertAttachmentsToCanonical($source_attachments);
+        }
       }
 
       // Getting enclosures (files).
