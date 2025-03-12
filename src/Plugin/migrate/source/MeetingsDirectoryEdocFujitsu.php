@@ -351,7 +351,8 @@ class MeetingsDirectoryEdocFujitsu extends MeetingsDirectory {
         }
 
         $date = new DrupalDateTime($handling['MeetingDate'], new \DateTimeZone('UTC'));
-        $canonical_handling_plan['body'] .= $handling['CommitteeName'] . ' ' . $date->format('d. F Y \k\l\. H:i') . '<br/>';
+        $canonical_handling_plan['body'] .= '<strong>' . $handling['CommitteeName'] . ' ' . $date->format('d. F Y \k\l\. H:i') . '</strong><br/>';
+        $canonical_handling_plan['body'] .= '<p>' . $handling['Decision']  . '</p><br/>';
       }
     }
 
