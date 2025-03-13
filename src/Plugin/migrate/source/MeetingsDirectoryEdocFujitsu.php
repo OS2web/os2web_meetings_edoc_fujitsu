@@ -356,7 +356,7 @@ class MeetingsDirectoryEdocFujitsu extends MeetingsDirectory {
 
         $body .= $handling['CommitteeName'] . ' ' . $date->format('d. F Y \k\l\. H:i') . '<br/>';
 
-        if ($handling['Decision'] != 'Beslutning ikke frigivet' && $handling['Decision'] != 'Beslutning ej frigivet') {
+        if (!empty($handling['Decision']) && $handling['Decision'] != 'Beslutning ikke frigivet' && $handling['Decision'] != 'Beslutning ej frigivet') {
           $body_decision .= '<br/><strong>' . $handling['CommitteeName'] . ' ' . $date->format('d. F Y \k\l\. H:i') . '</strong><br/>';
           $body_decision .= '<p>' . $handling['Decision']  . '</p>';
         }
