@@ -332,7 +332,6 @@ class MeetingsDirectoryEdocFujitsu extends MeetingsDirectory {
     $canonical_handling_plan = [
       'id' => NULL,
       'title' => 'Behandlingsplan',
-      'body' => '',
       'access' => TRUE,
     ];
 
@@ -341,6 +340,9 @@ class MeetingsDirectoryEdocFujitsu extends MeetingsDirectory {
       $plan[0] = $handlingPlan;
       $handlingPlan = $plan;
     }
+
+    $body = '';
+    $body_decision = '';
 
     foreach ($handlingPlan as $handling) {
       // Using date to skip empty ones.
@@ -351,12 +353,19 @@ class MeetingsDirectoryEdocFujitsu extends MeetingsDirectory {
         }
 
         $date = new DrupalDateTime($handling['MeetingDate'], new \DateTimeZone('UTC'));
-        $canonical_handling_plan['body'] .= '<strong>' . $handling['CommitteeName'] . ' ' . $date->format('d. F Y \k\l\. H:i') . '</strong><br/>';
-        $canonical_handling_plan['body'] .= '<p>' . $handling['Decision']  . '</p><br/>';
+
+        $body .= $handling['CommitteeName'] . ' ' . $date->format('d. F Y \k\l\. H:i') . '<br/>';
+
+        if ($handling['Decision'] != 'Beslutning ikke frigivet' && $handling['Decision'] != 'Beslutning ej frigivet') {
+          $body_decision .= '<br/><strong>' . $handling['CommitteeName'] . ' ' . $date->format('d. F Y \k\l\. H:i') . '</strong><br/>';
+          $body_decision .= '<p>' . $handling['Decision']  . '</p>';
+        }
       }
     }
 
-    if (!empty($canonical_handling_plan['body'])) {
+    if (!empty($body)) {
+      $canonical_handling_plan['body'] = '<p>' . $body . '</p>' .  $body_decision;
+
       return $canonical_handling_plan;
     }
 
