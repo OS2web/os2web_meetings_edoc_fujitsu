@@ -108,7 +108,7 @@ class MeetingsDirectoryEdocFujitsu extends MeetingsDirectory {
     // New title will be [Meeting title den [date in os2core_date_medium format]
     $title = $source['title'] . ' den ' . $formatted_date;
 
-    if ($source['agenda_subtype'] == 'Tillægsdagsorden') {
+    if ($source['agenda_subtype'] == 'Tillægsdagsorden' || $source['agenda_subtype'] == 'Ekstraordinær dagsorden') {
       $title .= ' - ' . $source['agenda_subtype'];
     }
 
