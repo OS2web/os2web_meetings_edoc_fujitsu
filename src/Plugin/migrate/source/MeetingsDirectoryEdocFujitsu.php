@@ -13,6 +13,7 @@ use Drupal\os2web_meetings\Entity\Meeting;
 use Drupal\os2web_meetings\Form\SettingsForm;
 use Drupal\os2web_meetings\Plugin\migrate\source\MeetingsDirectory;
 use Drupal\migrate\Row;
+use Drupal\taxonomy\Entity\Term;
 
 /**
  * Source plugin for retrieving data via URLs.
@@ -207,6 +208,10 @@ class MeetingsDirectoryEdocFujitsu extends MeetingsDirectory {
     $canonical_bullet_points = [];
     $source_bullet_points = $source['bullet_points'];
 
+    $committeeCanonical = $this->convertCommitteeToCanonical($source);
+    $committeeTarget = $this->processCommittee($committeeCanonical);
+    $committee = Term::load($committeeTarget['target_id']);
+
     foreach ($source_bullet_points as $bullet_point) {
       // Getting title.
       $title = $bullet_point['HandlingItem']['Title'];
@@ -223,9 +228,15 @@ class MeetingsDirectoryEdocFujitsu extends MeetingsDirectory {
       $access = filter_var($publishingType, FILTER_VALIDATE_BOOLEAN);
       $caseno = $bullet_point['HandlingItem']['CaseNumber'];
       $comname = $bullet_point['RuleOfSpeaking'];
+
       $handlingPlan = NULL;
-      if (NestedArray::keyExists($bullet_point, ['HandlingItem', 'HandlingPlan', 'Handling'])) {
-        $handlingPlan = $bullet_point['HandlingItem']['HandlingPlan']['Handling'];
+
+      // Adding handlingPlan if it committee is not of type
+      // 'field_os2web_m_simpl_no_apr_plan'.
+      if (!$committee->hasField('field_os2web_m_simpl_no_apr_plan') || !$committee->get('field_os2web_m_simpl_no_apr_plan')->value) {
+        if (NestedArray::keyExists($bullet_point, ['HandlingItem', 'HandlingPlan', 'Handling'])) {
+          $handlingPlan = $bullet_point['HandlingItem']['HandlingPlan']['Handling'];
+        }
       }
 
       // Getting attachments (text).
